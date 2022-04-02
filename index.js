@@ -1,6 +1,7 @@
 const WebSocket = require('ws')
 const port = (process.env.PORT) ? process.env.PORT: 8080
 const wss = new WebSocket.Server({port: port}, ()=>{
+
     console.log('server started')
 })
 
@@ -14,16 +15,13 @@ wss.on('connection',(ws)=>{
     ws.on('message',(data)=>{
         if (Buffer.isBuffer(data)) {
             console.log("it's a buffer!!!")
-
             let parsed = JSON.parse(data);
             console.log(parsed);
             if(parsed.message == 'get_state') {
                 ws.send(JSON.stringify(game_state))
             }
-        }
 
-        else {
-            ws.send("You suck, THIS IS EXAMPLE DATA")
+send("You suck, THIS IS EXAMPLE DATA")
         }
     });
 
