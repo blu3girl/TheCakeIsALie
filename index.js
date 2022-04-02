@@ -14,10 +14,11 @@ wss.on('connection',(ws)=>{
         if (Buffer.isBuffer(data)) {
             console.log("it's a buffer!!!")
 
-            var buf =  data.toString("utf8");
-            if(buf == 'Hello') {
+            let parsed = JSON.parse(data);
+            console.log(parsed);
+            if(parsed.message == 'get_state') {
                 ws.send(JSON.stringify(game_state))
-            } 
+            }
         }
 
         else {
