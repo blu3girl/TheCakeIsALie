@@ -16,7 +16,7 @@ module.exports = (server, socket, app) => {
     
     const init_game_state = () => {
         // Reset Game State, set initial default values
-
+  
         game_state["Current_Phase"] = "Lobby";
         game_state["Time_To_Next_Phase"] = null;
         game_state["Imposter"] = undefined;
@@ -104,7 +104,7 @@ module.exports = (server, socket, app) => {
                 init_game_state_results();
             }
         }
-
+  
         for(var player in game_state["Current_Players"]) {
             io.emit(player, game_state)
         }
@@ -146,7 +146,7 @@ module.exports = (server, socket, app) => {
             delete game_state["Current_Players"][id];
         }
     }
-
+  
     const POST_new_image = (data) => {
         console.log(data.id, 'posted image')
         game_state["Images"][data.id] = data.photo
@@ -185,32 +185,36 @@ module.exports = (server, socket, app) => {
             return POST_new_vote(data)
         }
     }
-
+  
     io.on('connection', function(socket){
         console.log(`${socket.id} is connected`);
-
+  
         socket.on('disconnect', function() {
             console.log(`${socket.id} has left`);
             POST_leave_player(socket.id)
         });
-
+  
         socket.on('POST_new_player', function(data) {
             // console.log("POST_new_player", data)
             POST_new_player(data);
         })
-
+  
         socket.on('POST_new_image', function(data) {
             POST_new_image(data);
+        })
+  
+        socket.on('POST_new_vote', function(data) {
+            POST_new_vote(data);
         })
     });
     
     init_game_state()
     game_state["Current_Players"] = {};
-
+  
     app.get("/start-game", (req, res) => {
         let total_players = Object.keys(game_state["Current_Players"]).length
         let phase = game_state["Current_Phase"];
-
+  
         if(phase == 'Lobby') {
             if(total_players >= 3) {
                 game_state["Time_To_Next_Phase"] = 3
@@ -224,10 +228,11 @@ module.exports = (server, socket, app) => {
             res.statusCode = 400
             res.send("NOT CORRECT STATE")
         }
-
+  
     })
     
     app.get('/get-game-data', (req, res) => {
         res.json(game_state)
     })
-}
+  }
+  

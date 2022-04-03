@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inria+Sans:wght@700&display=swap" rel="stylesheet">
     <title>Document</title>
     <script src="socket.io/socket.io.min.js"></script>
     <!-- <link rel="stylesheet" href="/styles.css"> -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@2"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
 
     <style>
         .active-btn {
@@ -25,86 +31,84 @@
     </style>
 
 </head>
-<body>
-    
+
+<body class="bkgd1">
+
     <div id="app">
         <div v-if="!hasLoggedIn">
-            <input 
-                type="text"
-                placeholder="username"
-                v-model="name"
-                style="border: 1px solid red"/>
-            <button @click="POST_new_player">
-                Join Game
-            </button>
+            <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center" >
+                <img class="my-8" width="700" src="images/cake.gif">
+                <input type="text" placeholder="Name" v-model="name" class="bg-gray-300 rounded-lg text-black px-4 py-2" style="width: 400px" />
+                <button @click="POST_new_player" :disabled="name.trim().length === 0"
+                v-bind:class = "name.trim().length === 0 ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700' "
+                class="text-white font-bold py-2 px-6 rounded my-4 text-xl">
+                    Join Game
+                </button>
+            </div>
         </div>
-        <div id="draw-div" style="display:none">
+
+        <div v-if="game_state && game_state['Current_Phase'] == 'Lobby' && id">
+            <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center" >
+                <h1 class="text-6xl font-bold my-8">WAITING FOR THE OTHER CHEFS</h1>
+                <button @click="GET_start_game"
+                :disabled="Object.keys(game_state['Current_Players']).length < 3"
+                v-bind:class = "Object.keys(game_state['Current_Players']).length < 3 ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700' "
+                class="text-white font-bold py-2 px-6 rounded my-4 text-xl">
+                    Start Game
+                </button>
+            </div>
+        </div>
+
+        <div id="draw-div" style="display: none;">
 
             <!-- Drawing Phase HTML -->
 
-
-
-
-
-
-
-            <div class="flex flex-col mt-4 justify-center items-center">
-                <h1 class="text-6xl font-bold my-8">DRAWING PHASE</h1>
-                <div class="bg-white my-0 mx-auto block shadow-lg p-4">
+            <div class="bkgd1 flex flex-col mt-4 justify-center items-center text-center">
+                <h1 class="text-6xl font-bold my-4">DRAWING PHASE</h1>
+                <div class="text-2xl">
+                    <h2>ROLE: {{role}}</h2>
+                    <h2>WORD: {{word}}</h2>
+                </div>
+                <div class="bg-white my-0 mx-auto block shadow-lg p-4 mt-4">
                     <canvas class="bg-white" id="drawing-board"></canvas>
                 </div>
                 <div id="toolbar" class="w-full flex flex-col items-center">
                     <div id="lineWidthBtns" class="flex mt-6 justify-center items-center mx-auto">
-                        <div class="widthBtn bg-black sm:w-16 sm:h-16 lg:h-6 lg:w-6 rounded-full ml-6 mr-2"></div>
-                        <div class="active-btn widthBtn bg-black sm:w-24 sm:h-24 lg:h-8 lg:w-8 rounded-full mx-2"></div>
-                        <div class="widthBtn bg-black lg:h-10 sm:w-32 sm:h-32 lg:w-10 rounded-full ml-2 mr-1"></div>
+                        <div class="widthBtn bg-black h-6 w-6 rounded-full ml-6 mr-2"></div>
+                        <div class="active-btn widthBtn bg-black h-8 w-8 rounded-full mx-2"></div>
+                        <div class="widthBtn bg-black h-10 w-10 rounded-full ml-2 mr-1"></div>
                     </div>
-                    <button id="submitBtn" @click="POST_new_image"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-8 px-16 lg:py-2 lg:px-6 rounded my-4 text-6xl lg:text-xl">
+                    <button @click="POST_new_image"
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded my-4 text-xl">
                         Submit
                     </button>
                 </div>
             </div>
-            
-
-
-
-
-
-
-
-
 
             <!-- Drawing Phase END HTML -->
 
-
-
-
         </div>
 
-
         <div v-if="game_state">
-
-
-            <div v-if="game_state['Current_Phase'] == 'Voting'">
-
-                <div v-for="(value, name) in game_state['Images']">
-                    a<img :src="value" alt="">
-                    b<img :src="name" alt="">
-
-                    <br />
+            <div class="bkgd1 flex flex-col mt-4 justify-center items-center text-center">
+                <div class="w-full" v-if="game_state['Current_Phase'] == 'Voting'">
+                    <h1 class="text-6xl font-bold my-8">VOTING PHASE</h1>
+                    <div v-for="(value, name) in game_state['Images']">
+                        <div v-if="id != name">
+                            <button @click="POST_new_vote(name)"
+                                class="w-10/12 lg:w-4/12 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 rounded my-4 text-xl">
+                                {{game_state['Current_Players'][name]}}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
             </div>
-
-
             [{{game_state.Current_Phase}} Phase] [{{
-                game_state.Time_To_Next_Phase == null ? 'waiting for players (3 needed)' : game_state.Time_To_Next_Phase
+            game_state.Time_To_Next_Phase == null ? 'waiting for players (3 needed)' : game_state.Time_To_Next_Phase
             }}] <br /><br />
             Current Players: ({{Object.keys(game_state['Current_Players']).length}})
             <ol>
-                <li
-                v-for="(value, name) in game_state['Current_Players']">
+                <li v-for="(value, name) in game_state['Current_Players']">
                     {{value}}
                 </li>
             </ol>
@@ -115,209 +119,240 @@
 
     <script>
         var socket = io();
-        var loops = 0; 
+        var loops = 0;
 
         setTimeout(() => {
             new Vue({
-            el: "#app",
-            mounted: function() {
+                el: "#app",
+                mounted: function () {
 
-                this.id = socket.id
-                
-                thisthis = this;
+                    this.id = socket.id
+                    this.role = '';
+                    this.word = '';
 
-                socket.on(this.id, function(data) {
-                    console.log("Recieving Data", data)
-                    thisthis.game_state = data;
-                    // thisthis.game_state = {"Current_Phase":"Drawing","Time_To_Next_Phase":7,"Imposter":"mKN08bUOpx-eznewAAAF","Word_Good":"Having a Leg Cramp","Word_Bad":"Yoga","Images":{},"Current_Players":{"vzt9wqxKpzItd78MAAAB":"a","E6ieJI7j7fVxGZ1nAAAD":"b","mKN08bUOpx-eznewAAAF":"c"}}
-                    thisthis.hasLoggedIn = true;
+                    thisthis = this;
 
-                    if(data["Current_Phase"] == "Drawing") {
-                        $("#draw-div").show()
-                    } else {
-                        $("#draw-div").hide()
-                    }
-                })
+                    socket.on(this.id, function (data) {
+                        // console.log("Recieving Data", data)
+                        thisthis.game_state = data;
+                        // thisthis.game_state = 
+                        thisthis.hasLoggedIn = true;
 
+                        if (data["Current_Phase"] == "Drawing") {
+                            $("#draw-div").show();
+                        } else {
+                            $("#draw-div").hide();
+                        }
 
-                this.draw_phase();
-            },
-            data: function () {
-                return {
-                    hasLoggedIn: false,
-                    name: "",
-                    canvas: undefined,
-                    id: socket.id,
-                    game_state: undefined
-                    // game_state: {"Current_Phase":"Drawing","Time_To_Next_Phase":7,"Imposter":"mKN08bUOpx-eznewAAAF","Word_Good":"Having a Leg Cramp","Word_Bad":"Yoga","Images":{},"Current_Players":{"vzt9wqxKpzItd78MAAAB":"a","E6ieJI7j7fVxGZ1nAAAD":"b","mKN08bUOpx-eznewAAAF":"c"}}
-                }
-            },
-            methods: {
-                POST_new_player: function () {
-                    console.log("AAAAAA")
-                    socket.emit("POST_new_player", {
-                        name: this.name,
-                        id: socket.id
+                        if (data["Imposter"] === thisthis.id) {
+                            thisthis.role = 'EVIL';
+                            thisthis.word = data["Word_Bad"]?.toUpperCase();
+                        }
+                        if (data["Imposter"] !== thisthis.id) {
+                            thisthis.role = 'INNOCENT';
+                            thisthis.word = data["Word_Good"]?.toUpperCase();
+                        }
                     })
-                },
-                POST_new_image: function() {
-                    console.log(".POST_new_image")
-                    var dataURL = this.canvas.toDataURL("image/png");
-                    console.log(dataURL);
 
-                    socket.emit("POST_new_image", {
-                        name: this.name,
+                    this.draw_phase();
+                },
+                data: function () {
+                    return {
+                        hasLoggedIn: false,
+                        name: "",
+                        canvas: undefined,
                         id: socket.id,
-                        photo: dataURL
-                    })
-                    // var newTab = window.open('about:blank','image from canvas');
-                    // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+                        game_state: undefined
+                    }
                 },
-                draw_phase: function() {
-                    this.canvas = document.getElementById('drawing-board');
-                    const canvas = document.getElementById('drawing-board');
-                    const toolbar = document.getElementById('toolbar');
-                    const lineWidthBtns = document.getElementById('lineWidthBtns');
-                    const submitBtn = document.getElementById('submitBtn');
-                    var widthBtns = [].slice.call(lineWidthBtns.querySelectorAll('.widthBtn'), 0);
-                    let lineWidth = 5;
-                    const ctx = canvas.getContext('2d');
+                methods: {
+                    POST_new_player: function () {
+                        socket.emit("POST_new_player", {
+                            name: this.name,
+                            id: socket.id
+                        })
+                    },
+                    POST_new_image: function () {
+                        console.log(".POST_new_image")
+                        var dataURL = this.canvas.toDataURL("image/png");
+                        console.log(dataURL);
+                        
+                        const canvas = document.getElementById('drawing-board');
+                        const ctx = this.canvas.getContext('2d');
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        socket.emit("POST_new_image", {
+                            name: this.name,
+                            id: socket.id,
+                            photo: dataURL
+                        })
+                        // var newTab = window.open('about:blank','image from canvas');
+                        // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+                    },
+                    POST_new_vote: function (person_voted_id) {
+                        console.log('posting new vote!!!!!', person_voted_id);
+                        socket.emit("POST_new_vote", {
+                            name: this.name,
+                            id: socket.id,
+                            person_voted_id: person_voted_id
+                        })
+                        // var newTab = window.open('about:blank','image from canvas');
+                        // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
+                    },
+                    GET_start_game: function () {
 
-                    console.log(">>>", canvas)
-
-                    if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(navigator.userAgent)) {
-                        ctx.canvas.width = window.innerWidth - 100;
-                        ctx.canvas.height = ctx.canvas.width / 1;
-                    }
-                    else {
-                        ctx.canvas.width = 400;
-                        ctx.canvas.height = 400 / 1;
-                    }
-
-                    // width/height = .75
-                    // width/.75
-
-                    console.log(lineWidthBtns)
-                    
-                    lineWidthBtns.addEventListener('click', e => {
-                        console.log('lineWidthBtns.addEventListener')
-                        let index = widthBtns.indexOf(e.target)
-                        if (index !== -1) {
-                            for (let i = 0; i < 3; i++) {
-                                widthBtns[i].classList.remove('active-btn');
-                            }
-                            e.target.classList.add('active-btn');
-
-                            if (index === 0) {
-                                lineWidth = 2;
-                            } else if (index === 1) {
-                                lineWidth = 5;
-                            } else if (index === 2) {
-                                lineWidth = 8;
-                            }
+                        var xmlHttp = new XMLHttpRequest();
+                        xmlHttp.onreadystatechange = function() { 
+                            if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                                console.log('gj');
                         }
-                    });
+                        xmlHttp.open("GET", '/start-game', true); // true for asynchronous 
+                        xmlHttp.send(null);
+                    },
+                    draw_phase: function () {
+                        console.log('hello');
+                        this.canvas = document.getElementById('drawing-board');
+                        const canvas = document.getElementById('drawing-board');
+                        const toolbar = document.getElementById('toolbar');
+                        const lineWidthBtns = document.getElementById('lineWidthBtns');
+                        var widthBtns = [].slice.call(lineWidthBtns.querySelectorAll('.widthBtn'), 0);
+                        let lineWidth = 5;
+                        const ctx = canvas.getContext('2d');
 
-                    // https://bencentra.com/code/2014/12/05/html5-canvas-touch-events.html
-                    // Set up mouse events for drawing
-                    var drawing = false;
-                    var mousePos = { x: 0, y: 0 };
-                    var lastPos = mousePos;
+                        console.log(">>>", canvas)
 
-                    canvas.addEventListener("mousedown", function (e) {
-                        console.log('canvas.addEventListener')
-                        drawing = true;
-                        ctx.beginPath();
-                        lastPos = getMousePos(canvas, e);
-                    });
-                    canvas.addEventListener("mouseup", function (e) {
-                        console.log('canvas.addEventListener')
-                        drawing = false;
-                    });
-                    canvas.addEventListener("mousemove", function (e) {
-                        console.log('canvas.addEventListener')
-                        mousePos = getMousePos(canvas, e);
-                    });
+                        if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(navigator.userAgent)) {
+                            ctx.canvas.width = window.innerWidth - 100;
+                            ctx.canvas.height = ctx.canvas.width / 1;
+                        }
+                        else {
+                            ctx.canvas.width = 400;
+                            ctx.canvas.height = 400 / 1;
+                        }
 
-                    // Get the position of the mouse relative to the canvas
-                    function getMousePos(canvasDom, mouseEvent) {
-                        var rect = canvasDom.getBoundingClientRect();
-                        return {
-                            x: mouseEvent.clientX - rect.left,
-                            y: mouseEvent.clientY - rect.top
-                        };
-                    }
+                        // width/height = .75
+                        // width/.75
 
-                    // Get a regular interval for drawing to the screen
-                    window.requestAnimFrame = (function (callback) {
-                        return window.requestAnimationFrame ||
-                            window.webkitRequestAnimationFrame ||
-                            window.mozRequestAnimationFrame ||
-                            window.oRequestAnimationFrame ||
-                            window.msRequestAnimaitonFrame ||
-                            function (callback) {
-                                window.setTimeout(callback, 1000 / 60);
+                        console.log(lineWidthBtns)
+
+                        lineWidthBtns.addEventListener('click', e => {
+                            console.log('lineWidthBtns.addEventListener')
+                            let index = widthBtns.indexOf(e.target)
+                            if (index !== -1) {
+                                for (let i = 0; i < 3; i++) {
+                                    widthBtns[i].classList.remove('active-btn');
+                                }
+                                e.target.classList.add('active-btn');
+
+                                if (index === 0) {
+                                    lineWidth = 2;
+                                } else if (index === 1) {
+                                    lineWidth = 5;
+                                } else if (index === 2) {
+                                    lineWidth = 8;
+                                }
+                            }
+                        });
+
+                        // https://bencentra.com/code/2014/12/05/html5-canvas-touch-events.html
+                        // Set up mouse events for drawing
+                        var drawing = false;
+                        var mousePos = { x: 0, y: 0 };
+                        var lastPos = mousePos;
+
+                        canvas.addEventListener("mousedown", function (e) {
+                            console.log('canvas.addEventListener')
+                            drawing = true;
+                            ctx.beginPath();
+                            lastPos = getMousePos(canvas, e);
+                        });
+                        canvas.addEventListener("mouseup", function (e) {
+                            console.log('canvas.addEventListener')
+                            drawing = false;
+                        });
+                        canvas.addEventListener("mousemove", function (e) {
+                            console.log('canvas.addEventListener')
+                            mousePos = getMousePos(canvas, e);
+                        });
+
+                        // Get the position of the mouse relative to the canvas
+                        function getMousePos(canvasDom, mouseEvent) {
+                            var rect = canvasDom.getBoundingClientRect();
+                            return {
+                                x: mouseEvent.clientX - rect.left,
+                                y: mouseEvent.clientY - rect.top
                             };
-                    })();
-
-                    // Draw to the canvas
-                    function renderCanvas() {
-                        if (drawing) {
-                            ctx.lineWidth = lineWidth;
-                            ctx.moveTo(lastPos.x, lastPos.y);
-                            ctx.lineTo(mousePos.x, mousePos.y);
-                            ctx.stroke();
-                            lastPos = mousePos;
                         }
+
+                        // Get a regular interval for drawing to the screen
+                        window.requestAnimFrame = (function (callback) {
+                            return window.requestAnimationFrame ||
+                                window.webkitRequestAnimationFrame ||
+                                window.mozRequestAnimationFrame ||
+                                window.oRequestAnimationFrame ||
+                                window.msRequestAnimaitonFrame ||
+                                function (callback) {
+                                    window.setTimeout(callback, 1000 / 60);
+                                };
+                        })();
+
+                        // Draw to the canvas
+                        function renderCanvas() {
+                            if (drawing) {
+                                ctx.lineWidth = lineWidth;
+                                ctx.moveTo(lastPos.x, lastPos.y);
+                                ctx.lineTo(mousePos.x, mousePos.y);
+                                ctx.stroke();
+                                lastPos = mousePos;
+                            }
+                        }
+
+                        // Allow for animation
+                        (function drawLoop() {
+                            requestAnimFrame(drawLoop);
+                            renderCanvas();
+                        })();
+
+                        // Set up touch events for mobile, etc
+                        canvas.addEventListener("touchstart", function (e) {
+                            console.log('canvas.addEventListener')
+                            e.preventDefault();
+                            mousePos = getTouchPos(canvas, e);
+                            var touch = e.touches[0];
+                            var mouseEvent = new MouseEvent("mousedown", {
+                                clientX: touch.clientX,
+                                clientY: touch.clientY
+                            });
+                            canvas.dispatchEvent(mouseEvent);
+                        }, false);
+                        canvas.addEventListener("touchend", function (e) {
+                            console.log('canvas.addEventListener')
+                            e.preventDefault();
+                            var mouseEvent = new MouseEvent("mouseup", {});
+                            canvas.dispatchEvent(mouseEvent);
+                        }, false);
+                        canvas.addEventListener("touchmove", function (e) {
+                            console.log('canvas.addEventListener')
+                            e.preventDefault();
+                            var touch = e.touches[0];
+                            var mouseEvent = new MouseEvent("mousemove", {
+                                clientX: touch.clientX,
+                                clientY: touch.clientY
+                            });
+                            canvas.dispatchEvent(mouseEvent);
+                        }, false);
+
+                        // Get the position of a touch relative to the canvas
+                        function getTouchPos(canvasDom, touchEvent) {
+                            var rect = canvasDom.getBoundingClientRect();
+                            return {
+                                x: touchEvent.touches[0].clientX - rect.left,
+                                y: touchEvent.touches[0].clientY - rect.top
+                            };
+                        }
+
                     }
-
-                    // Allow for animation
-                    (function drawLoop() {
-                        requestAnimFrame(drawLoop);
-                        renderCanvas();
-                    })();
-
-                    // Set up touch events for mobile, etc
-                    canvas.addEventListener("touchstart", function (e) {
-                        console.log('canvas.addEventListener')
-                        e.preventDefault();
-                        mousePos = getTouchPos(canvas, e);
-                        var touch = e.touches[0];
-                        var mouseEvent = new MouseEvent("mousedown", {
-                            clientX: touch.clientX,
-                            clientY: touch.clientY
-                        });
-                        canvas.dispatchEvent(mouseEvent);
-                    }, false);
-                    canvas.addEventListener("touchend", function (e) {
-                        console.log('canvas.addEventListener')
-                        e.preventDefault();
-                        var mouseEvent = new MouseEvent("mouseup", {});
-                        canvas.dispatchEvent(mouseEvent);
-                    }, false);
-                    canvas.addEventListener("touchmove", function (e) {
-                        console.log('canvas.addEventListener')
-                        e.preventDefault();
-                        var touch = e.touches[0];
-                        var mouseEvent = new MouseEvent("mousemove", {
-                            clientX: touch.clientX,
-                            clientY: touch.clientY
-                        });
-                        canvas.dispatchEvent(mouseEvent);
-                    }, false);
-
-                    // Get the position of a touch relative to the canvas
-                    function getTouchPos(canvasDom, touchEvent) {
-                        var rect = canvasDom.getBoundingClientRect();
-                        return {
-                            x: touchEvent.touches[0].clientX - rect.left,
-                            y: touchEvent.touches[0].clientY - rect.top
-                        };
-                    }
-
                 }
-            }
-        })
+            })
 
         }, 500)
     </script>
@@ -331,159 +366,6 @@
 
 
 </body>
-
-
-<script>
-    // const canvas = document.getElementById('drawing-board');
-    // const toolbar = document.getElementById('toolbar');
-    // const lineWidthBtns = document.getElementById('lineWidthBtns');
-    // const submitBtn = document.getElementById('submitBtn');
-    // var widthBtns = [].slice.call(lineWidthBtns.querySelectorAll('.widthBtn'), 0);
-    // let lineWidth = 5;
-    // const ctx = canvas.getContext('2d');
-
-    // console.log(">>>", canvas)
-
-    // if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(navigator.userAgent)) {
-    //     ctx.canvas.width = window.innerWidth - 100;
-    //     ctx.canvas.height = ctx.canvas.width / 0.75;
-    // }
-    // else {
-    //     ctx.canvas.width = 400;
-    //     ctx.canvas.height = 400 / 0.75;
-    // }
-
-    // // width/height = .75
-    // // width/.75
-
-    // console.log(lineWidthBtns)
-
-    // lineWidthBtns.addEventListener('click', e => {
-    //     console.log('lineWidthBtns.addEventListener')
-    //     let index = widthBtns.indexOf(e.target)
-    //     if (index !== -1) {
-    //         for (let i = 0; i < 3; i++) {
-    //             widthBtns[i].classList.remove('active-btn');
-    //         }
-    //         e.target.classList.add('active-btn');
-
-    //         if (index === 0) {
-    //             lineWidth = 2;
-    //         } else if (index === 1) {
-    //             lineWidth = 5;
-    //         } else if (index === 2) {
-    //             lineWidth = 8;
-    //         }
-    //     }
-    // });
-
-    // // https://bencentra.com/code/2014/12/05/html5-canvas-touch-events.html
-    // // Set up mouse events for drawing
-    // var drawing = false;
-    // var mousePos = { x: 0, y: 0 };
-    // var lastPos = mousePos;
-
-    // canvas.addEventListener("mousedown", function (e) {
-    //     console.log('canvas.addEventListener')
-    //     drawing = true;
-    //     ctx.beginPath();
-    //     lastPos = getMousePos(canvas, e);
-    // });
-    // canvas.addEventListener("mouseup", function (e) {
-    //     console.log('canvas.addEventListener')
-    //     drawing = false;
-    // });
-    // canvas.addEventListener("mousemove", function (e) {
-    //     console.log('canvas.addEventListener')
-    //     mousePos = getMousePos(canvas, e);
-    // });
-
-    // // Get the position of the mouse relative to the canvas
-    // function getMousePos(canvasDom, mouseEvent) {
-    //     var rect = canvasDom.getBoundingClientRect();
-    //     return {
-    //         x: mouseEvent.clientX - rect.left,
-    //         y: mouseEvent.clientY - rect.top
-    //     };
-    // }
-
-    // // Get a regular interval for drawing to the screen
-    // window.requestAnimFrame = (function (callback) {
-    //     return window.requestAnimationFrame ||
-    //         window.webkitRequestAnimationFrame ||
-    //         window.mozRequestAnimationFrame ||
-    //         window.oRequestAnimationFrame ||
-    //         window.msRequestAnimaitonFrame ||
-    //         function (callback) {
-    //             window.setTimeout(callback, 1000 / 60);
-    //         };
-    // })();
-
-    // // Draw to the canvas
-    // function renderCanvas() {
-    //     if (drawing) {
-    //         ctx.lineWidth = lineWidth;
-    //         ctx.moveTo(lastPos.x, lastPos.y);
-    //         ctx.lineTo(mousePos.x, mousePos.y);
-    //         ctx.stroke();
-    //         lastPos = mousePos;
-    //     }
-    // }
-
-    // // Allow for animation
-    // (function drawLoop() {
-    //     requestAnimFrame(drawLoop);
-    //     renderCanvas();
-    // })();
-
-    // // Set up touch events for mobile, etc
-    // canvas.addEventListener("touchstart", function (e) {
-    //     console.log('canvas.addEventListener')
-    //     e.preventDefault();
-    //     mousePos = getTouchPos(canvas, e);
-    //     var touch = e.touches[0];
-    //     var mouseEvent = new MouseEvent("mousedown", {
-    //         clientX: touch.clientX,
-    //         clientY: touch.clientY
-    //     });
-    //     canvas.dispatchEvent(mouseEvent);
-    // }, false);
-    // canvas.addEventListener("touchend", function (e) {
-    //     console.log('canvas.addEventListener')
-    //     e.preventDefault();
-    //     var mouseEvent = new MouseEvent("mouseup", {});
-    //     canvas.dispatchEvent(mouseEvent);
-    // }, false);
-    // canvas.addEventListener("touchmove", function (e) {
-    //     console.log('canvas.addEventListener')
-    //     e.preventDefault();
-    //     var touch = e.touches[0];
-    //     var mouseEvent = new MouseEvent("mousemove", {
-    //         clientX: touch.clientX,
-    //         clientY: touch.clientY
-    //     });
-    //     canvas.dispatchEvent(mouseEvent);
-    // }, false);
-
-    // // Get the position of a touch relative to the canvas
-    // function getTouchPos(canvasDom, touchEvent) {
-    //     var rect = canvasDom.getBoundingClientRect();
-    //     return {
-    //         x: touchEvent.touches[0].clientX - rect.left,
-    //         y: touchEvent.touches[0].clientY - rect.top
-    //     };
-    // }
-
-    // submitBtn.addEventListener('click', e => {
-    //     var dataURL = canvas.toDataURL("image/png");
-    //     console.log(dataURL);
-    //     // var newTab = window.open('about:blank','image from canvas');
-    //     // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
-    // });
-
-</script>
-
-
 
 
 </html>
