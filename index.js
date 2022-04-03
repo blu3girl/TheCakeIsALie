@@ -1,6 +1,6 @@
 const WebSocket = require('ws')
-const port = (process.env.PORT) ? process.env.PORT: 8080
-const wss = new WebSocket.Server({port: port}, ()=>{
+const port = (process.env.PORT) ? process.env.PORT : 8080
+const wss = new WebSocket.Server({ port: port }, () => {
 
     console.log('server started')
 })
@@ -11,26 +11,24 @@ var game_state = {
     imposter: [1]
 }
 
-wss.on('connection',(ws)=>{
-    ws.on('message',(data)=>{
+wss.on('connection', (ws) => {
+    ws.on('message', (data) => {
         if (Buffer.isBuffer(data)) {
             console.log("it's a buffer!!!")
             let parsed = JSON.parse(data);
             console.log(parsed);
-            if(parsed.message == 'get_state') {
+            if (parsed.message == 'get_state') {
                 ws.send(JSON.stringify(game_state))
             }
-
-send("You suck, THIS IS EXAMPLE DATA")
         }
     });
 
-    ws.on('send_game_state',(data)=>{
+    ws.on('send_game_state', (data) => {
         ws.send(JSON.stringify(game_state))
     });
 })
 
 
-wss.on('listening',()=>{
+wss.on('listening', () => {
     console.log('server is listening on port 8080')
 })
