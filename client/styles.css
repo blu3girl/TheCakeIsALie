@@ -71,7 +71,21 @@ body {
 
 
 
+.line1,
+.line2 {
+    left: 0;
+    position: absolute;
+    width: 100vw;
+    display: none;
+}
 
+.line1 {
+    top: 8.8vh;
+}
+
+.line2 {
+    top: 54vh;
+}
 
 #gallery {
     left: 0;
@@ -145,5 +159,10 @@ body {
 
     .grid li.wide {
         width: 50%;
+    }
+
+    .line1,
+    .line2 {
+        display: inline;
     }
 }
