@@ -198,6 +198,10 @@ module.exports = (server, socket, app) => {
             // console.log("POST_new_player", data)
             POST_new_player(data);
         })
+
+        socket.on('POST_new_image', function(data) {
+            POST_new_image(data);
+        })
     });
     
     init_game_state()
