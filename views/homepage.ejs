@@ -7,14 +7,76 @@
     <title>Document</title>
     <script src="socket.io/socket.io.min.js"></script>
     <!-- <link rel="stylesheet" href="/styles.css"> -->
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@2"></script>
+
 </head>
 <body>
     
-    Here
+    <div id="app">
+        <div v-if="!hasLoggedIn">
+            <input 
+                type="text"
+                placeholder="username"
+                v-model="name"
+                style="border: 1px solid red"/>
+            <button @click="POST_new_player">
+                Join Game
+            </button>
+        </div>
+        <div v-if="game_state">
+            [{{game_state.Current_Phase}} Phase] [{{
+                game_state.Time_To_Next_Phase == null ? 'waiting for players (3 needed)' : game_state.Time_To_Next_Phase
+            }}] <br /><br />
+            Current Players: ({{Object.keys(game_state['Current_Players']).length}})
+            <ol>
+                <li
+                v-for="(value, name) in game_state['Current_Players']" :key="item">
+                    {{value}}
+                </li>
+            </ol>
+        </div>
+
+    </div>
 
     <script>
         var socket = io();
         var loops = 0; 
+
+        setTimeout(() => {
+            new Vue({
+            el: "#app",
+            mounted: function() {
+                this.id = socket.id
+                
+                thisthis = this;
+
+                socket.on(this.id, function(data) {
+                    console.log("Recieving Data", data)
+                    thisthis.game_state = data
+                    thisthis.hasLoggedIn = true;
+                })
+            },
+            data: function () {
+                return {
+                    hasLoggedIn: false,
+                    name: "",
+                    id: socket.id,
+                    game_state: undefined
+                }
+            },
+            methods: {
+                POST_new_player: function (place) {
+                    console.log("AAAAAA")
+                    socket.emit("POST_new_player", {
+                        name: this.name,
+                        id: socket.id
+                    })
+                }
+            }
+        })
+
+        }, 500)
     </script>
 </body>
 </html>

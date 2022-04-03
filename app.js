@@ -24,16 +24,6 @@ var server = app.listen(3000, () => {
 
 // https://stackoverflow.com/questions/27393705/how-to-resolve-a-socket-io-404-not-found-error
 
-let io = socket(server)
-io.on('connection', function(socket){
-  console.log(`${socket.id} is connected`);
-
-    socket.on('disconnect', function() {
-        console.log(`${socket.id} has left`);
-    });
-});
-
-
 
 
 
@@ -44,7 +34,7 @@ io.on('connection', function(socket){
 // app.use(express.static(path.join(__dirname, 'public')));
 
 
-
+io_server = require('./server/io_server')(server, socket, app)
 
 
 

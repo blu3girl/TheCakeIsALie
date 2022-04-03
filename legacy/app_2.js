@@ -11,7 +11,6 @@ const init_game_state = () => {
 
     game_state["Current_Phase"] = "Lobby";
     game_state["Time_To_Next_Phase"] = null;
-    game_state["Current_Players"] = {};
 }
 
 init_game_state_drawing = () => {
@@ -114,7 +113,7 @@ const GET_game_state = (data) => {
 const POST_new_player = (data) => {
     
     let name = data.name
-    let id = (data.id) ? data.id : Math.random().toString(16).slice(2)
+    // let id = (data.id) ? data.id : Math.random().toString(16).slice(2)
 
     // Add a player to the game state
     if(! (id in game_state["Current_Players"])) {
@@ -122,7 +121,7 @@ const POST_new_player = (data) => {
         game_state["Current_Players"][id] = name
     }
 
-    return id
+    // return id
 }
 
 const POST_new_image = (data) => {
