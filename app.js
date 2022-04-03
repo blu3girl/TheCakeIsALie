@@ -151,7 +151,7 @@ const new_message = (input, ws) => {
     // let parsed = input;
 
     let message = parsed['message']
-    let data = parsed['data']
+    let data = JSON.parse(parsed['data'])
 
     if(message == "POST_new_player") {
         ws.send(JSON.stringify(POST_new_player(data)));
