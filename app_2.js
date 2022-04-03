@@ -1,9 +1,3 @@
-const WebSocket = require('ws')
-const port = (process.env.PORT) ? process.env.PORT : 8080
-const wss = new WebSocket.Server({ port: port }, () => {
-    console.log('server started')
-})
-
 let game_state = {}
 let word_bank = [
     ["Baguette", "Baton"],
@@ -98,7 +92,6 @@ setInterval(() => {
             init_game_state_results();
         }
     }
-
 }, 1000)
 
 
@@ -142,44 +135,34 @@ const POST_new_vote = (data) => {
     game_state["Votes"][data.id] = data.person_voted_id
 }
 
+
 const new_message = (input) => {
     console.log("nm", input.message)
     
-    if (!Buffer.isBuffer(input)) { console.log("ERROR: INVALID DATA TYPE"); return; }
-    let parsed = JSON.parse(input);
+    // if (!Buffer.isBuffer(input)) { console.log("ERROR: INVALID DATA TYPE"); return; }
+    // let parsed = JSON.parse(input);
     // For anything not testing, uncomment the top two lines
-    // let parsed = input;
+    let parsed = input;
 
     let message = parsed['message']
     let data = parsed['data']
 
     if(message == "POST_new_player") {
-        ws.send(JSON.stringify(POST_new_player(data)));
+        return POST_new_player(data);
     }
     
     if(message == "GET_game_state") {
-        ws.send(JSON.stringify(GET_game_state(data)));
+        return GET_game_state(data)
     }
 
     if(message == "POST_new_image") {
-        POST_new_image(data)
+        return POST_new_image(data)
     }
 
     if(message == "POST_new_vote") {
-        POST_new_vote(data)
-    }
-
-    if(message == "POST_init_game") {
-        init_game_state()
+        return POST_new_vote(data)
     }
 }
-
-wss.on('connection', (ws) => {
-    ws.on('message', (data) => {
-        new_message(data)
-    });
-})
-
 
 const play_example_game = () => {
     console.log("Playing an example game")
@@ -314,10 +297,8 @@ const play_example_game = () => {
             }
         }))
     }, 36000)
+
+
 }
 
-// play_example_game();
-
-wss.on('listening', () => {
-    console.log('server is listening on port 8080')
-})
+play_example_game();
