@@ -100,9 +100,9 @@ body {
     list-style: none;
 }
 
-.oy {
+/* .oy {
     overflow-y: scroll;
-}
+} */
 
 .grid li {
     padding: 0;

@@ -28,34 +28,49 @@
             width: 600px;
             flex-shrink: 0;
         }
+
+        [v-cloak] {
+            display: none;
+        }
+
     </style>
 
 </head>
 
-<body class="bkgd1">
+<body class="bkgd1" style="overflow-y: scroll!important;">
 
-    <div id="app">
+    <div id="app" v-cloak>
         <div v-if="!hasLoggedIn">
-            <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center" >
+            <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center">
                 <img class="my-8" width="700" src="images/cake.gif">
-                <input type="text" placeholder="Name" v-model="name" class="bg-gray-300 rounded-lg text-black px-4 py-2" style="width: 400px" />
+                <input type="text" placeholder="Name" v-model="name" autofocus class="bg-gray-300 rounded-lg text-black px-4 py-2" style="width: 400px" />
                 <button @click="POST_new_player" :disabled="name.trim().length === 0"
                 v-bind:class = "name.trim().length === 0 ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700' "
                 class="text-white font-bold py-2 px-6 rounded my-4 text-xl">
                     Join Game
                 </button>
+
+                <div v-if="full_game">
+                    <p>
+                        ERROR: Full Game! 6 people already playing.
+                    </p>
+                </div>
             </div>
         </div>
 
         <div v-if="game_state && game_state['Current_Phase'] == 'Lobby' && id">
             <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center" >
-                <h1 class="text-6xl font-bold my-8">WAITING FOR THE OTHER CHEFS</h1>
-                <button @click="GET_start_game"
+                <h1 class="text-2xl lg:text-6xl  font-bold my-8 mb-0">WAITING FOR THE OTHER CHEFS  </h1>
+                <h1 class="text-2xl lg:text-6xl  font-bold my-8 mb-0"><small>(3 players needed)</small>  </h1>
+
+                <img class="mt-8" width="700" src="images/cake.gif" >
+
+                <!-- <button @click="GET_start_game"
                 :disabled="Object.keys(game_state['Current_Players']).length < 3"
                 v-bind:class = "Object.keys(game_state['Current_Players']).length < 3 ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700' "
                 class="text-white font-bold py-2 px-6 rounded my-4 text-xl">
                     Start Game
-                </button>
+                </button> -->
             </div>
         </div>
 
@@ -69,10 +84,10 @@
                     <h2>ROLE: {{role}}</h2>
                     <h2>WORD: {{word}}</h2>
                 </div>
-                <div class="bg-white my-0 mx-auto block shadow-lg p-4 mt-4">
+                <div class="bg-white my-0 mx-auto block shadow-lg p-4 mt-4" v-if="!waitingForPlayers">
                     <canvas class="bg-white" id="drawing-board"></canvas>
                 </div>
-                <div id="toolbar" class="w-full flex flex-col items-center">
+                <div id="toolbar" class="w-full flex flex-col items-center"  v-if="!waitingForPlayers">
                     <div id="lineWidthBtns" class="flex mt-6 justify-center items-center mx-auto">
                         <div class="widthBtn bg-black h-6 w-6 rounded-full ml-6 mr-2"></div>
                         <div class="active-btn widthBtn bg-black h-8 w-8 rounded-full mx-2"></div>
@@ -82,6 +97,12 @@
                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded my-4 text-xl">
                         Submit
                     </button>
+                </div>
+                <div  v-if="waitingForPlayers" class="p-2">
+                    <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center" >
+                        <h1 class="text-xl lg:text-4xl  font-bold my-8 mb-0">WAITING FOR THE OTHER PLAYERS TO FINISH </h1>
+                        <img class="mt-8" width="700" src="images/cake.gif" >
+                    </div>
                 </div>
             </div>
 
@@ -93,7 +114,7 @@
             <div class="bkgd1 flex flex-col mt-4 justify-center items-center text-center">
                 <div class="w-full" v-if="game_state['Current_Phase'] == 'Voting'">
                     <h1 class="text-6xl font-bold my-8">VOTING PHASE</h1>
-                    <div v-for="(value, name) in game_state['Images']">
+                    <div v-for="(value, name) in game_state['Images']" v-if="!waitingForPlayersVotes">
                         <div v-if="id != name">
                             <button @click="POST_new_vote(name)"
                                 class="w-10/12 lg:w-4/12 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 rounded my-4 text-xl">
@@ -101,18 +122,36 @@
                             </button>
                         </div>
                     </div>
+                    <div  v-if="waitingForPlayersVotes" class="p-2">
+                        <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center" >
+                            <h1 class="text-xl lg:text-4xl  font-bold my-8 mb-0">WAITING FOR THE OTHER PLAYERS TO VOTE </h1>
+                            <img class="mt-8" width="700" src="images/cake.gif" >
+                        </div>
+                    </div>
                 </div>
             </div>
-            [{{game_state.Current_Phase}} Phase] [{{
-            game_state.Time_To_Next_Phase == null ? 'waiting for players (3 needed)' : game_state.Time_To_Next_Phase
-            }}] <br /><br />
-            Current Players: ({{Object.keys(game_state['Current_Players']).length}})
-            <ol>
-                <li v-for="(value, name) in game_state['Current_Players']">
-                    {{value}}
-                </li>
-            </ol>
+            <div class="bkgd1 flex flex-col mt-4 justify-center items-center text-center">
+                <div class="w-full" v-if="game_state['Current_Phase'] == 'Results'">
+                    <h1 class="text-2xl lg:text-6xl font-bold my-8" >{{game_state['Current_Players'][game_state['Imposter']]}} Was the Imposter!</h1>
+                    <h1 class="text-2xl lg:text-6xl font-bold my-8" v-if="id != game_state['Imposter'] && who_I_voted_for==game_state['Imposter']" style="color: green">YOU PICKED CORRECTLY</h1>
+                    <h1 class="text-2xl lg:text-6xl font-bold my-8" v-if="id != game_state['Imposter'] && who_I_voted_for!=game_state['Imposter']" style="color: red">YOU PICKED INCORRECTLY</h1>
+                </div>
+            </div>
 
+            <div class="flex flex-col justify-center items-center mt-8 container mx-auto text-center" >
+                <h1 class="text-2xl font-bold my-8 mb-0">Current Players ({{Object.keys(game_state['Current_Players']).length}})</h1>
+                <div v-for="(value, name) in game_state['Current_Players']">
+                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 rounded my-4 text-lg p-2"> 
+                        {{value}} <span v-if="name==id">(YOU)</span>
+                    </button>
+
+                </div>
+            </div>
+            <span style="top:0; right:0; position:fixed; color: red; padding: 0px 10px;" class="font-mono">
+                {{
+                    game_state.Time_To_Next_Phase == null ? 'waiting for game to start' : game_state.Time_To_Next_Phase
+                }}
+            </span>
         </div>
 
     </div>
@@ -133,25 +172,43 @@
                     thisthis = this;
 
                     socket.on(this.id, function (data) {
-                        // console.log("Recieving Data", data)
-                        thisthis.game_state = data;
-                        // thisthis.game_state = 
-                        thisthis.hasLoggedIn = true;
 
-                        if (data["Current_Phase"] == "Drawing") {
-                            $("#draw-div").show();
+                        if(data == "Full Game") {
+                            thisthis.full_game = true
                         } else {
-                            $("#draw-div").hide();
+
+                            // console.log("Recieving Data", data)
+                            thisthis.game_state = data;
+                            // thisthis.game_state = 
+                            thisthis.hasLoggedIn = true;
+
+                            if (data["Current_Phase"] == "Drawing") {
+                                this.who_I_voted_for = undefined;
+                                $("#draw-div").show();
+                            } else {
+                                $("#draw-div").hide();
+                            }
+
+                            if (data["Current_Phase"] == "Voting") {
+                                this.waitingForPlayers = false   
+                            }
+
+                            if (data["Current_Phase"] == "Results") {
+                                this.waitingForPlayersVotes = false   
+                            }
+
+
+
+                            if (data["Imposter"] === thisthis.id) {
+                                thisthis.role = 'EVIL';
+                                thisthis.word = data["Word_Bad"]?.toUpperCase();
+                            }
+                            if (data["Imposter"] !== thisthis.id) {
+                                thisthis.role = 'INNOCENT';
+                                thisthis.word = data["Word_Good"]?.toUpperCase();
+                            }
                         }
 
-                        if (data["Imposter"] === thisthis.id) {
-                            thisthis.role = 'EVIL';
-                            thisthis.word = data["Word_Bad"]?.toUpperCase();
-                        }
-                        if (data["Imposter"] !== thisthis.id) {
-                            thisthis.role = 'INNOCENT';
-                            thisthis.word = data["Word_Good"]?.toUpperCase();
-                        }
                     })
 
                     this.draw_phase();
@@ -162,7 +219,11 @@
                         name: "",
                         canvas: undefined,
                         id: socket.id,
-                        game_state: undefined
+                        game_state: undefined,
+                        waitingForPlayers: false,
+                        waitingForPlayersVotes: false,
+                        full_game: false,
+                        who_I_voted_for: undefined
                     }
                 },
                 methods: {
@@ -185,6 +246,7 @@
                             id: socket.id,
                             photo: dataURL
                         })
+                        this.waitingForPlayers = true
                         // var newTab = window.open('about:blank','image from canvas');
                         // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
                     },
@@ -195,6 +257,9 @@
                             id: socket.id,
                             person_voted_id: person_voted_id
                         })
+                        this.waitingForPlayersVotes = true
+
+                        this.who_I_voted_for = person_voted_id;
                         // var newTab = window.open('about:blank','image from canvas');
                         // newTab.document.write("<img src='" + dataURL + "' alt='from canvas'/>");
                     },
@@ -218,6 +283,9 @@
                         let lineWidth = 5;
                         const ctx = canvas.getContext('2d');
 
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
                         console.log(">>>", canvas)
 
                         if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(navigator.userAgent)) {
@@ -228,6 +296,8 @@
                             ctx.canvas.width = 400;
                             ctx.canvas.height = 400 / 1;
                         }
+
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
                         // width/height = .75
                         // width/.75

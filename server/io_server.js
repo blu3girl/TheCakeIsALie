@@ -32,7 +32,7 @@ module.exports = (server, socket, app) => {
         let random_word_pick = ~~(Math.random() * 2);
     
         game_state["Current_Phase"] = "Drawing";
-        game_state["Time_To_Next_Phase"] = 10
+        game_state["Time_To_Next_Phase"] = 45
         game_state["Imposter"] = Object.keys(game_state["Current_Players"])[random_imposter_index],
         game_state["Word_Good"] = word_bank[random_word_bank][random_word_pick],
         game_state["Word_Bad"] = word_bank[random_word_bank][(random_word_pick + 1) % 2]
@@ -43,7 +43,7 @@ module.exports = (server, socket, app) => {
     
     init_game_state_voting = () => {
         game_state["Current_Phase"] = "Voting";
-        game_state["Time_To_Next_Phase"] = 10
+        game_state["Time_To_Next_Phase"] = 20
         game_state["Votes"] = {};
     
         console.log('Voting Game State', game_state)
@@ -132,6 +132,13 @@ module.exports = (server, socket, app) => {
         let name = data.name
         let id = data.id
     
+        let total_players = Object.keys(game_state["Current_Players"]).length
+        if(total_players >= 6) {
+            console.log("FULL GAME")
+            io.emit(id, "Full Game")
+            return;
+        }
+
         // Add a player to the game state
         if(! (id in game_state["Current_Players"])) {
             console.log("Adding", name, id, "to the game")
@@ -234,5 +241,5 @@ module.exports = (server, socket, app) => {
     app.get('/get-game-data', (req, res) => {
         res.json(game_state)
     })
-  }
+}
   
