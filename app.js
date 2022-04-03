@@ -1,7 +1,7 @@
 // const express = require('express');
 const logger = require('morgan');
 // const http = require('http');
-// var PORT = process.env.PORT || 3000;
+var PORT = process.env.PORT || 3000;
 
 
 
@@ -18,7 +18,7 @@ app.get("/", (req, res) => {
     res.render('homepage')
 })
 
-var server = app.listen(3000, () => {
+var server = app.listen(PORT, () => {
     console.log('listening for requests on port 3000');
 });
 
