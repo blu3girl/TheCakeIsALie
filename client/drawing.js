@@ -6,6 +6,18 @@ var widthBtns = [].slice.call(lineWidthBtns.querySelectorAll('.widthBtn'), 0);
 let lineWidth = 5;
 const ctx = canvas.getContext('2d');
 
+if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(navigator.userAgent)) {
+  ctx.canvas.width  = window.innerWidth - 100;
+  ctx.canvas.height = ctx.canvas.width / 0.75;
+}
+else {
+  ctx.canvas.width = 400;
+  ctx.canvas.height = 400 / 0.75;
+}
+
+// width/height = .75
+// width/.75
+
 lineWidthBtns.addEventListener('click', e => {
   let index = widthBtns.indexOf(e.target)
   if (index !== -1) {
