@@ -195,7 +195,7 @@
 
                             if (data["Current_Phase"] == "Voting") {
                                 thisthis.waitingForPlayers = false   
-                                thisthis.ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                thisthis.ctx.clearRect(0, 0, thisthis.canvas.width, thisthis.canvas.height);
                             }
 
                             if (data["Current_Phase"] == "Results") {
@@ -229,7 +229,7 @@
                         waitingForPlayersVotes: false,
                         full_game: false,
                         who_I_voted_for: undefined,
-                        ctx: undefined
+                        ctx: undefined,
                     }
                 },
                 methods: {
