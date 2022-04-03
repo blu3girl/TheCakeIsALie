@@ -11,7 +11,21 @@ module.exports = (server, socket, app) => {
     let word_bank = [
         ["Baguette", "Baton"],
         ["Yoga", "Having a Leg Cramp"],
-        ["Snake", "Rope"]
+        ["Snake", "Rope"],
+        ["Surfing","Stand up Paddle Boarding"],
+        ["Leaning Tower of Pisa","Washington Monument"],
+        ["Eyeball","Contact Lenses"],
+        ["Bagel","Donut"],
+        ["Baguette","Baton"],
+        ["Kicking","One Leg Squat"],
+        ["Chef Hat","Top Hat"],
+        ["Whiteboard","Piece of Paper"],
+        ["Yoga","Having a Leg Cramp"],
+        ["Chair","Throne"],
+        ["Eyeball","Contact Lenses"],
+        ["Hard Boiled Egg","Avocado"],
+        ["Maple Leaf","Weed"],
+        ["Rope","Snake"]
     ]
     
     const init_game_state = () => {
@@ -28,7 +42,7 @@ module.exports = (server, socket, app) => {
     
     init_game_state_drawing = () => {
         let random_imposter_index = ~~(Math.random() * Object.keys(game_state["Current_Players"]).length);
-        let random_word_bank = ~~(Math.random() * 3);
+        let random_word_bank = ~~(Math.random() * 17);
         let random_word_pick = ~~(Math.random() * 2);
     
         game_state["Current_Phase"] = "Drawing";
