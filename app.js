@@ -142,7 +142,7 @@ const POST_new_vote = (data) => {
     game_state["Votes"][data.id] = data.person_voted_id
 }
 
-const new_message = (input) => {
+const new_message = (input, ws) => {
     console.log("nm", input.message)
     
     if (!Buffer.isBuffer(input)) { console.log("ERROR: INVALID DATA TYPE"); return; }
@@ -176,7 +176,7 @@ const new_message = (input) => {
 
 wss.on('connection', (ws) => {
     ws.on('message', (data) => {
-        new_message(data)
+        new_message(data, ws)
     });
 })
 
