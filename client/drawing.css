@@ -3,3 +3,8 @@
   border-width: 2px;
   border-color: red;
 }
+
+.canvas-container {
+  width: 600px;
+  flex-shrink: 0;
+}
