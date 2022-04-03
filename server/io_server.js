@@ -51,7 +51,7 @@ module.exports = (server, socket, app) => {
     
     init_game_state_results = () => {
         game_state["Current_Phase"] = "Results";
-        game_state["Time_To_Next_Phase"] = 10
+        game_state["Time_To_Next_Phase"] = 15
     }
     
     setInterval(() => {
