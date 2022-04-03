@@ -26,11 +26,20 @@ input {
     margin-bottom: 10px;
     font-size: 30px;
     padding: 10px;
+    background-color: #F0EFEC;
+    max-width: calc(100vw - 60px);
 }
 
 textarea:focus,
 input:focus {
     outline: none;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    overflow-y: hidden;
+    overflow-x: hidden;
 }
 
 .bkgd1 {
@@ -43,5 +52,130 @@ input:focus {
     bottom: 0;
     left: 0;
     height: 100vh;
+}
 
+.ticketi {}
+
+
+.l2 {
+    margin-left: 10vw;
+}
+
+
+
+
+
+
+
+
+
+
+
+.line1,
+.line2 {
+    left: 0;
+    position: absolute;
+    width: 100vw;
+    display: none;
+}
+
+.line1 {
+    top: 8.8vh;
+}
+
+.line2 {
+    top: 54vh;
+}
+
+#gallery {
+    left: 0;
+    position: absolute;
+    right: 0;
+    height: 90vh;
+}
+
+
+
+.grid {
+    list-style: none;
+}
+
+.oy {
+    overflow-y: scroll;
+}
+
+.grid li {
+    padding: 0;
+}
+
+.grid li>img {
+    display: block;
+    width: 100%;
+    text-align: center;
+    position: relative;
+}
+
+.tooleft {
+    left: -105vw;
+
+}
+
+@keyframes slide-in {
+    0% {
+        left: -105vw;
+    }
+
+    100% {
+        left: 0;
+    }
+}
+
+.animated {
+    animation: slide-in 1.5s ease;
+}
+
+@media all and (min-width: 27em) {
+    .grid li {
+        width: 50%;
+        float: left;
+    }
+}
+
+@media all and (min-width: 40em) {
+    .grid li {
+        width: 33.3333333%;
+    }
+
+    .grid li.wide {
+        width: 66.666666%;
+    }
+}
+
+@media all and (min-width: 1200px) {
+    .grid li {
+        width: 300px;
+        margin: 0 calc(25% - 300px);
+    }
+
+    .grid li.wide {
+        width: 50%;
+    }
+
+    .line1,
+    .line2 {
+        display: inline;
+    }
+}
+
+.cake1,
+.cake2 {
+    max-height: 100vh;
+    max-width: 100vw;
+    top: 0;
+    left: 0;
+    position: fixed;
+}
+
+.hide {
+    opacity: 0;
 }
